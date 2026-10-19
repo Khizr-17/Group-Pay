@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#064638"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="GroupPay">
+<title>ABL GroupPay — Sign in and Group Contributions</title>
+<style>
+*{box-sizing:border-box}
+:root{--em:#075B46;--for:#064638;--gold:#D7B45A;--ivory:#F7F8F4;--ink:#182B25;--mut:#5a6a62;--line:#E1E8E2;--bad:#a4281f;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--ivory);line-height:1.5}
+.banner{background:var(--gold);color:#2b2300;text-align:center;padding:.4rem .75rem;font-size:.85rem;font-weight:600}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 2rem)}
+nav{background:var(--for);color:#fff;padding:1.2rem .9rem;display:flex;flex-direction:column;gap:.25rem}
+.brand{font-weight:700;font-size:1.3rem;margin-bottom:1.2rem}.brand small{display:block;font-weight:400;font-size:.75rem;color:#cfe3da}
+nav a{padding:.65rem .8rem;border-radius:10px;color:#e6f1ec;text-decoration:none;border-left:3px solid transparent}nav a:hover{background:rgba(255,255,255,.09)}
+nav a.on{background:rgba(215,180,90,.16);color:#fff;border-left-color:var(--gold);font-weight:600}
+.navfoot{margin-top:auto;font-size:.75rem;color:#cfe3da;padding:.6rem}
+main{padding:1.5rem;max-width:1000px;width:100%}main:focus{outline:none}
+h1{margin:.2rem 0 .8rem;font-size:1.7rem;letter-spacing:-.01em}h2{font-size:1.1rem;margin:.1rem 0 .6rem}
+.hero{background:var(--em);color:#fff;border-radius:16px;padding:1.4rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center}.hero h1{margin:.5rem 0 .3rem}.hero p{margin:0;max-width:46ch;color:#e2f0ea}
+.pill{background:rgba(215,180,90,.22);color:#f3dfa2;padding:.15rem .7rem;border-radius:99px;font-size:.8rem;font-weight:600}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.1rem;box-shadow:0 1px 2px rgba(6,70,56,.06);margin-bottom:1rem}.card.done{border-color:var(--gold);box-shadow:0 0 0 2px rgba(215,180,90,.35)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1rem}.grid .card{margin:0}
+.stat{font-size:1.45rem;font-weight:700;color:var(--em)}.muted{color:var(--mut)}.sm{font-size:.85rem}
+.btn{background:var(--em);color:#fff;border:1px solid var(--em);border-radius:10px;padding:.6rem 1rem;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;min-height:44px;transition:background .15s}
+.btn:hover{background:var(--for)}.btn.alt{background:#fff;color:var(--em)}.btn.alt:hover{background:#eef5f1}.btn.gold{background:var(--gold);border-color:var(--gold);color:#2b2300}.btn.gold:hover{background:#e3c777}
+.btn.ghost{background:transparent;border-color:#fff;color:#fff}.btn.bad{background:var(--bad);border-color:var(--bad)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}.rg{padding:.6rem 0;border-top:1px solid var(--line)}.rg:first-of-type{border-top:0}
+:focus-visible{outline:3px solid #b8860b;outline-offset:2px}
+label{display:block;font-weight:600;margin:.8rem 0 .25rem}input,select,textarea{width:100%;padding:.65rem;border:1px solid #8a9b92;border-radius:10px;font:inherit;background:#fff;min-height:44px}
+.err{background:#fdecea;border:1px solid var(--bad);color:var(--bad);border-radius:10px;padding:.6rem .9rem;margin:.6rem 0}.err ul{margin:0;padding-left:1.1rem}
+.ok{background:#e6f3ed;border:1px solid var(--em);color:var(--for);border-radius:10px;padding:.7rem}
+.bar{height:12px;background:#e3ebe6;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--em)}
+.badge{display:inline-block;padding:.1rem .6rem;border-radius:99px;font-size:.8rem;font-weight:600;border:1px solid var(--line);background:#eef2ef;color:var(--mut)}
+.badge.Paid,.badge.Fully.Funded,.badge.Contributed{background:#e6f3ed;color:var(--em)}.badge.Partially.Paid,.badge.In.Progress{background:#fff3cf;color:#7a5a00}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.55rem;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-size:.85rem}
+.how{margin:0;padding-left:1.3rem}.how li{padding:.2rem 0}
+dialog{border:1px solid var(--line);border-radius:16px;max-width:560px;width:calc(100% - 2rem);padding:1.3rem;color:var(--ink)}dialog::backdrop{background:rgba(6,70,56,.5)}
+a.gl{color:var(--em);font-weight:700}
+@media(prefers-reduced-motion:no-preference){main>div{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
+
+.auth-wrap{width:100%;max-width:520px;margin:2.2rem auto;padding:0 .25rem}
+.auth-card{overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh)}
+.auth-head{padding:1.7rem 1.7rem 1.45rem;color:#fff;background:linear-gradient(135deg,#075B46,#043429)}
+.auth-head.is-signup{background:radial-gradient(120% 150% at 100% 0,#d7b45a 0,transparent 50%),linear-gradient(135deg,#075B46,#043429)}
+.auth-symbol{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.24);font-size:1.35rem;margin-bottom:.8rem}
+.auth-eyebrow{font-size:.72rem;letter-spacing:.12em;font-weight:800;color:#f3dfa2}
+.auth-head h1{margin:.45rem 0 .35rem;font-size:1.8rem}
+.auth-head p{margin:0;color:#e2f0ea;max-width:38ch}
+.auth-form{padding:1.4rem 1.7rem 1.2rem}
+.auth-form label{margin-top:.7rem}
+.auth-primary{width:100%;margin-top:1rem;min-height:48px}
+.auth-switch{display:flex;align-items:center;justify-content:center;gap:.35rem;flex-wrap:wrap;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--line)}
+.auth-link{font-weight:750;color:var(--acc);text-decoration:none}
+.auth-link:hover{text-decoration:underline}
+.auth-note{margin:1.1rem 0 .1rem;text-align:center;line-height:1.45}
+body .shell.solo{display:block}
+@media(max-width:760px){.shell{display:block;padding-bottom:4.4rem}nav{position:fixed;bottom:0;left:0;right:0;flex-direction:row;justify-content:space-around;padding:.3rem .3rem calc(.3rem + env(safe-area-inset-bottom,0px));z-index:5}.brand,.navfoot{display:none}nav a{font-size:.72rem;padding:.5rem .3rem;text-align:center;border-left:0;border-top:3px solid transparent}nav a.on{border-top-color:var(--gold)}main{padding:1rem}}
+
+:root{--card:#fff;--track:#e3ebe6;--acc:#075B46;--sh:0 1px 2px rgba(6,70,56,.05),0 8px 24px -12px rgba(6,70,56,.18);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ivory:#0e1713;--card:#15231d;--line:#25372f;--ink:#e8f0eb;--mut:#9db0a6;--track:#25372f;--acc:#5fd3a8;--bad:#ff8a80;color-scheme:dark}}
+body{background:var(--ivory)}
+.banner{background:linear-gradient(90deg,#2b2300,#4a3a07);color:#f3dfa2;font-weight:500;font-size:.78rem;letter-spacing:.01em}
+nav{background:linear-gradient(180deg,#07533f,#043429);box-shadow:2px 0 18px rgba(0,0,0,.12)}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}.brand small{flex-basis:100%;margin-top:-.3rem}
+.logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#D7B45A,#f3dfa2);color:#2b2300;display:grid;place-items:center;font-weight:800}
+nav a{display:flex;align-items:center;gap:.65rem;font-weight:500}.ico{font-size:1.05rem;width:1.4rem;text-align:center}
+main{max-width:1080px}h1{font-weight:750}
+.card{background:var(--card);box-shadow:var(--sh);border-radius:18px;border-color:var(--line)}
+.hero{background:radial-gradient(120% 140% at 100% 0,#0d8a68 0,transparent 55%),linear-gradient(135deg,#075B46,#043429);border-radius:22px;padding:1.6rem;box-shadow:0 18px 40px -20px rgba(4,52,41,.7);position:relative;overflow:hidden}
+.hero .big{font-size:2.3rem;font-weight:800;letter-spacing:-.02em;margin:.2rem 0}.hero .sub{color:#cfe3da;font-size:.9rem}
+.stc{position:relative;padding-top:1.2rem}.sic{position:absolute;right:.9rem;top:.8rem;width:34px;height:34px;border-radius:10px;background:rgba(7,91,70,.1);display:grid;place-items:center}
+.stat{color:var(--acc);font-weight:750}a.gl{color:var(--acc)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:1rem;margin-bottom:1rem}.two .card{margin:0}
+@media(max-width:760px){.two{grid-template-columns:1fr}.hero .big{font-size:1.9rem}nav a{flex-direction:column;gap:.1rem}}
+.donut{width:150px;height:150px;flex:none}.dn{font-size:22px;font-weight:800;fill:var(--ink)}.ds{font-size:9px;fill:var(--mut)}
+.cols{width:100%;height:auto}.ax{font-size:9px;fill:var(--mut)}.ax.b{fill:var(--ink);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.85rem}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:.4rem}
+.chartrow{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.stack{display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--track);margin:.5rem 0}.stack i{display:block;height:100%}
+.bar{height:10px;background:var(--track)}.bar i{background:linear-gradient(90deg,#075B46,#2fae88)}
+.gp{padding:.55rem 0}.gp .row{justify-content:space-between}
+.av{width:38px;height:38px;border-radius:50%;color:#fff;font-weight:700;font-size:.8rem;display:inline-grid;place-items:center;flex:none}
+.who{display:inline-flex;align-items:center;gap:.6rem;font-weight:600}.who .av{width:28px;height:28px;font-size:.68rem}
+.tx{display:flex;align-items:center;gap:.8rem;padding:.7rem .2rem;border-bottom:1px solid var(--line)}.tx:last-child{border:0}
+.tm{display:flex;flex-direction:column;min-width:0;flex:1}.tm .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ta{display:flex;flex-direction:column;align-items:flex-end;text-align:right}.pos{color:var(--acc);font-size:1.02rem}
+.dayh{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700;margin:1rem 0 .1rem}
+.tabs{display:inline-flex;background:var(--track);border-radius:12px;padding:4px;margin-bottom:1rem}.tabs button{border:0;background:transparent;color:var(--mut);font:inherit;font-weight:600;padding:.5rem 1rem;border-radius:9px;cursor:pointer;min-height:40px}.tabs button.on{background:var(--card);color:var(--acc);box-shadow:var(--sh)}
+.empty{text-align:center;padding:1.6rem;color:var(--mut)}
+details summary{cursor:pointer;font-weight:700}
+input,select,textarea{background:var(--card);color:var(--ink);border-color:var(--line);border-radius:12px}
+dialog{background:var(--card);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.btn{border-radius:12px}.btn.alt{background:var(--card);color:var(--acc);border-color:var(--line)}.btn.alt:hover{background:var(--track)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){.badge{background:#1d2e27}.badge.Paid,.badge.Fully.Funded,.badge.Contributed{background:#12382c;color:#5fd3a8}.badge.Partially.Paid,.badge.In.Progress{background:#3b3010;color:#f3dfa2}.ok{background:#12382c;color:#bfeede}.err{background:#3a1a17}.bar i{background:linear-gradient(90deg,#3fbf93,#5fd3a8)}}}
+</style>
+</head>
+<body>
+<div class="banner" role="note">Simulated payments only · Not an official Allied Bank product · Sample data is stored on this device only</div>
+<div class="shell">
+  <nav id="nav" aria-label="Main"><div class="brand"><span class="logo">A</span>ABL GroupPay<small>One Bill. Flexible Contributions. Easy Settlement.</small></div>
+    <a href="#/"><span class="ico">🏠</span>Dashboard</a><a href="#/create"><span class="ico">➕</span>Create Group</a><a href="#/groups"><span class="ico">👥</span>Groups</a><a href="#/activity"><span class="ico">🧾</span>Transaction History</a><a href="#/settings"><span class="ico">⚙️</span>About & Demo Data</a>
+    <div class="navfoot">No real money moves: all payments are simulated.</div>
+  </nav>
+  <main id="app" tabindex="-1"></main>
+</div>
+<dialog id="dlg" aria-labelledby="dlgTitle"><h2 id="dlgTitle"></h2><div id="dlgBody"></div></dialog>
+<script>
+/* Pure money logic. All amounts are integer paisa (1 PKR = 100 paisa). */
+(function (root) {
+  'use strict';
+  const C = {};
+  C.MAX_TOTAL = 10000000000; // PKR 100,000,000.00 in paisa
+  C.MAX_PEOPLE = 20;
+  C.uid = p => p + '-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
+  // "12.5" -> 1250. Also parses percentages into hundredths ("33.33" -> 3333). NaN if invalid.
+  C.parseMoney = s => {
+    s = String(s).replace(/,/g, '').trim();
+    if (s.length > 14 || !/^\d+(\.\d{1,2})?$/.test(s)) return NaN; // length cap keeps values inside safe integers
+    const [a, b = ''] = s.split('.');
+    return Number(a) * 100 + Number((b + '00').slice(0, 2));
+  };
+  C.fmt = p => 'PKR ' + (p / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Even split; leftover paisa go to the LAST participants (deterministic): 1000/3 -> 333.33, 333.33, 333.34
+  C.spread = (total, n) => {
+    const b = Math.floor(total / n), r = total - b * n;
+    return Array.from({ length: n }, (_, i) => b + (i >= n - r ? 1 : 0));
+  };
+  C.collected = g => g.participants.reduce((s, p) => s + p.paidAmountPaisa, 0);
+  C.recalc = g => {
+    g.participants.forEach(p => {
+      p.outstandingAmountPaisa = g.isGoal ? 0 : Math.max(0, p.assignedAmountPaisa - p.paidAmountPaisa);
+      p.status = p.paidAmountPaisa === 0 ? 'Pending'
+        : g.isGoal ? 'Contributed'
+        : p.outstandingAmountPaisa > 0 ? 'Partially Paid' : 'Paid';
+    });
+    const c = C.collected(g);
+    g.status = c === g.totalAmountPaisa ? 'Fully Funded' : c > 0 ? 'In Progress' : 'Active';
+    return g;
+  };
+  // Validate form input and build a group. Returns {errors, group}.
+  C.build = f => {
+    const e = [], total = C.parseMoney(f.total), names = f.names.map(s => s.trim());
+    if (!f.name.trim()) e.push('Group name is required.');
+    if (!(total > 0)) e.push('Total amount must be a positive number with at most 2 decimals.');
+    if (total > C.MAX_TOTAL) e.push('Total amount cannot exceed PKR 100,000,000.00.');
+    if (names.length > C.MAX_PEOPLE) e.push('A group can have at most ' + C.MAX_PEOPLE + ' participants.');
+    if (f.name.trim().length > 60 || names.some(n => n.length > 40)) e.push('Group names are limited to 60 characters and participant names to 40.');
+    if ((f.description || '').length > 500) e.push('Description is limited to 500 characters.');
+    if (f.targetDate && !/^\d{4}-\d{2}-\d{2}$/.test(f.targetDate)) e.push('Target date is not valid.');
+    if (names.length < 1) e.push('At least one participant (the organizer) is required.');
+    if (names.some(n => !n)) e.push('Participant names cannot be empty.');
+    if (new Set(names.map(n => n.toLowerCase())).size !== names.length) e.push('Participant names must be unique.');
+    let amts = null;
+    if (total > 0 && names.length >= 1) {
+      if (f.isGoal) amts = names.map(() => 0);
+      else if (f.method === 'equal') amts = C.spread(total, names.length);
+      else {
+        const v = f.values.map(C.parseMoney);
+        if (v.some(isNaN)) e.push('Contributions/percentages must be valid, non-negative numbers.');
+        else if (f.method === 'custom') {
+          if (v.reduce((a, b) => a + b, 0) !== total) e.push('Custom contributions must add up exactly to the total.');
+          else amts = v;
+        } else if (v.reduce((a, b) => a + b, 0) !== 10000) e.push('Percentages must total exactly 100%.');
+        else {
+          amts = v.map(b => Math.floor(total * b / 10000));
+          amts[amts.length - 1] += total - amts.reduce((a, b) => a + b, 0);
+        }
+      }
+    }
+    if (e.length) return { errors: e };
+    const g = {
+      id: C.uid('GRP'), name: f.name.trim(), purpose: f.purpose || 'Other', description: (f.description || '').trim(),
+      totalAmountPaisa: total, splitMethod: f.isGoal ? 'flexible' : f.method, isGoal: !!f.isGoal, status: 'Active',
+      createdAt: new Date().toISOString(), targetDate: f.targetDate || '',
+      participants: names.map((n, i) => ({ id: C.uid('P'), name: n, assignedAmountPaisa: amts[i], paidAmountPaisa: 0, outstandingAmountPaisa: 0, status: 'Pending' }))
+    };
+    return { errors: [], group: C.recalc(g) };
+  };
+  // Preview a participant's new amount; unpaid balance is spread over other unpaid participants. Paid amounts never change.
+  C.redistribute = (g, id, amt) => {
+    const me = g.participants.find(p => p.id === id), others = g.participants.filter(p => p !== me);
+    if (g.status === 'Fully Funded') return { ok: false, error: 'This group is fully funded; allocations are locked.' };
+    if (!Number.isInteger(amt) || amt < 0) return { ok: false, error: 'Enter a valid, non-negative amount.' };
+    if (amt < me.paidAmountPaisa) return { ok: false, error: 'Cannot go below the amount already paid.' };
+    let elig = others.filter(p => p.paidAmountPaisa < p.assignedAmountPaisa);
+    if (!elig.length) elig = others;
+    const fixed = others.filter(p => !elig.includes(p)).reduce((s, p) => s + p.assignedAmountPaisa, 0);
+    const pool = g.totalAmountPaisa - amt - fixed - elig.reduce((s, p) => s + p.paidAmountPaisa, 0);
+    if (pool < 0) return { ok: false, error: 'Amount exceeds the remaining group balance.' };
+    const sh = C.spread(pool, elig.length), a = { [id]: amt };
+    others.forEach(p => { a[p.id] = elig.includes(p) ? p.paidAmountPaisa + sh[elig.indexOf(p)] : p.assignedAmountPaisa; });
+    return { ok: true, assigned: a };
+  };
+  C.apply = (g, a) => { g.participants.forEach(p => { p.assignedAmountPaisa = a[p.id]; }); return C.recalc(g); };
+  C.maxPay = (g, p) => g.isGoal ? g.totalAmountPaisa - C.collected(g) : p.outstandingAmountPaisa;
+  // Record a SIMULATED payment. `key` makes the submission idempotent (duplicate protection).
+  C.pay = (st, g, pid, amt, key) => {
+    const p = g && g.participants.find(x => x.id === pid);
+    if (!p || (st.groups && !st.groups.includes(g))) return { ok: false, error: 'Group or participant no longer exists. Please refresh.' };
+    if (g.status === 'Fully Funded') return { ok: false, error: 'This group is fully funded and cannot accept more payments.' };
+    if (st.transactions.some(t => t.key === key)) return { ok: false, error: 'Duplicate payment ignored.' };
+    if (!Number.isInteger(amt) || amt <= 0) return { ok: false, error: 'Enter a valid amount greater than zero.' };
+    if (amt > C.maxPay(g, p)) return { ok: false, error: 'Amount is more than the outstanding balance. Please reduce it.' };
+    const t = { id: C.uid('TXN'), key, groupId: g.id, participantId: pid, amountPaisa: amt, type: 'simulated_payment', status: 'Demo Successful', createdAt: new Date().toISOString() };
+    p.paidAmountPaisa += amt; st.transactions.push(t); C.recalc(g);
+    return { ok: true, txn: t };
+  };
+  // Drop malformed saved records so bad localStorage data cannot crash rendering.
+  C.cleanGroups = gs => gs.filter(g => g && typeof g.id === 'string' && typeof g.name === 'string' && Number.isSafeInteger(g.totalAmountPaisa) && Array.isArray(g.participants) &&
+    g.participants.every(p => p && typeof p.id === 'string' && typeof p.name === 'string' && Number.isSafeInteger(p.assignedAmountPaisa) && Number.isSafeInteger(p.paidAmountPaisa) && p.paidAmountPaisa >= 0)).map(C.recalc);
+  root.GPCore = C;
+  if (typeof module !== 'undefined') module.exports = C;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+'use strict';
+const C = window.GPCore, KEY = 'ablgrouppay:v1', $ = id => document.getElementById(id);
+const TYPES = ['group_created', 'allocation_changed', 'simulated_payment', 'goal_completed', 'group_updated'];
+let st = { groups: [], transactions: [], activity: [] }, storageOK = true;
+st = load();
+const USERS_KEY = 'ablgrouppay:users:v1', SESSION_KEY = 'ablgrouppay:session:v1';
+let users = readUsers(), currentUser = readSession() || null, pendingInviteToken = '';
+function readUsers(){ try { const x=JSON.parse(localStorage.getItem(USERS_KEY)||'[]'); return Array.isArray(x)?x:[]; } catch(e){ return []; } }
+function readSession(){ try { const id=localStorage.getItem(SESSION_KEY); return users.find(u=>u.id===id)||null; } catch(e){ return null; } }
+function setSession(u){ currentUser=u; try { if(u) localStorage.setItem(SESSION_KEY,u.id); else localStorage.removeItem(SESSION_KEY); } catch(e){} }
+async function passwordHash(value){
+  if (window.crypto && crypto.subtle) { const bytes = new TextEncoder().encode(value); const digest = await crypto.subtle.digest('SHA-256', bytes); return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+  throw new Error('Secure password hashing is unavailable in this browser. Open the file in a modern browser.');
+}
+function safeB64Encode(obj){ return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function safeB64Decode(str){ str=String(str||'').replace(/-/g,'+').replace(/_/g,'/'); while(str.length%4) str+='='; return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+// Your own live web address (for example https://your-app.vercel.app/). Optional: when this page is opened from its
+// hosted address, invite links automatically use that address. Only needed if you open the file from your computer.
+const CANONICAL_APP_URL = '';
+function publicAppBase(){
+  // A WhatsApp recipient cannot open a file:/// URL from the organizer's computer.
+  // Use your own live address if this file is opened locally; otherwise use the current deployed origin.
+  if (location.protocol === 'file:' || location.origin === 'null') return CANONICAL_APP_URL || (location.href.split('#')[0]);
+  return location.origin + location.pathname + location.search;
+}
+function groupInvitePayload(g){
+  const collectedPaisa = C.collected(g);
+  // Compact relay fields plus the full ABL fields.
+  // Relay amounts are expressed in PKR, while ABL's internal amounts are integer paisa.
+  return {
+    v:1, t:g.name, a:Math.round(g.totalAmountPaisa/100), p:Math.round(collectedPaisa/100),
+    n:g.participants.length, c:g.purpose || 'Other',
+    d:g.targetDate ? ('Due ' + g.targetDate) : (g.description || 'Group contribution'), i:g.id,
+    id:g.id,name:g.name,purpose:g.purpose,description:g.description,
+    totalAmountPaisa:g.totalAmountPaisa,splitMethod:g.splitMethod,isGoal:g.isGoal,
+    status:g.status,createdAt:g.createdAt,targetDate:g.targetDate,
+    participants:g.participants.length?[{...g.participants[0]}]:[],inviteVersion:1
+  };
+}
+function inviteUrl(g){
+  // The hosted app consumes #relay=<base64url JSON>. Never share a local file path.
+  return publicAppBase()+'#relay='+safeB64Encode(groupInvitePayload(g));
+}
+function joinGroupFromInvite(token){
+  let incoming; try { incoming=safeB64Decode(token); } catch(e){ return {error:'This invitation link is invalid or incomplete. Ask the organizer to create a new link.'}; }
+  // Accept compact relay links as well as full ABL invitations.
+  if (incoming && incoming.inviteVersion !== 1 && incoming.v === 1 && typeof incoming.t === 'string' && Number.isFinite(incoming.a)) {
+    incoming = {
+      ...incoming, inviteVersion:1, id:typeof incoming.i === 'string' ? incoming.i : C.uid('GRP'),
+      name:incoming.t, purpose:incoming.c || 'Other', description:incoming.d || '',
+      totalAmountPaisa:Math.round(Number(incoming.a) * 100), splitMethod:'equal', isGoal:false,
+      status:'Active', createdAt:new Date().toISOString(), targetDate:'', participants:[]
+    };
+  }
+  if(!incoming || incoming.inviteVersion!==1 || typeof incoming.id!=='string' || !Array.isArray(incoming.participants) || !Number.isSafeInteger(incoming.totalAmountPaisa)) return {error:'This invitation link is not valid.'};
+  let g=st.groups.find(x=>x.id===incoming.id);
+  if(!g){ g={...incoming,participants:incoming.participants.map(p=>({...p})),id:incoming.id}; st.groups.push(g); }
+  if(!g.participants.some(p=>p.userId===currentUser.id || p.id===currentUser.id)){
+    const p={id:currentUser.id,userId:currentUser.id,name:currentUser.name,assignedAmountPaisa:0,paidAmountPaisa:0,outstandingAmountPaisa:0,status:'Pending'};
+    g.participants.push(p);
+    if(g.splitMethod==='equal' && !g.isGoal){ const a=window.GPCore.spread(g.totalAmountPaisa,g.participants.length); g.participants.forEach((x,i)=>x.assignedAmountPaisa=a[i]); }
+    C.recalc(g); log(g,'participant_joined',currentUser.name+' joined with account '+currentUser.id,0,currentUser.name);
+    save();
+  }
+  return {group:g};
+}
+
+/* ---------- storage ---------- */
+function load() {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); const s = JSON.parse(raw);
+    if (s && Array.isArray(s.groups) && Array.isArray(s.transactions) && Array.isArray(s.activity)) {
+      s.groups = C.cleanGroups(s.groups); s.transactions = s.transactions.filter(t => t && typeof t.groupId === 'string' && Number.isSafeInteger(t.amountPaisa));
+      s.activity = s.activity.filter(a => a && typeof a.id === 'string' && !isNaN(Date.parse(a.createdAt))); return s; } } catch (e) {}
+  return raw === null ? sample() : { groups: [], transactions: [], activity: [] };
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); storageOK = true; } catch (e) { storageOK = false; /* keep running in memory and warn the user */ } }
+function log(g, type, desc, amt, who) {
+  st.activity.unshift({ id: C.uid('ACT'), groupId: g.id, eventType: type, description: desc, participantName: who || '', amountPaisa: amt || 0, createdAt: new Date().toISOString() });
+}
+function addGroup(f) { const r = C.build(f); if (r.errors.length) return r; st.groups.push(r.group); log(r.group, 'group_created', 'Group created: ' + r.group.name, r.group.totalAmountPaisa); return r; }
+function sample() {
+  st = { groups: [], transactions: [], activity: [] };
+  const a = addGroup({ name: 'Lahore Dinner (Sample)', purpose: 'Restaurant', total: '1000', names: ['Ayesha', 'Bilal', 'Chand'], method: 'equal', values: [] }).group;
+  recordPay(a, a.participants[0], C.parseMoney('333.33'), 'seed1');
+  const b = addGroup({ name: 'Murree Trip (Sample)', purpose: 'Travel', total: '30000', names: ['Dania', 'Eshaal', 'Farhan', 'Gul'], method: 'percent', values: ['40', '20', '20', '20'] }).group;
+  recordPay(b, b.participants[0], 600000, 'seed2');
+  const c = addGroup({ name: 'Society Event Fund (Sample)', purpose: 'University Event', total: '10000', names: ['Hina', 'Imran', 'Jawad'], isGoal: true, targetDate: '2026-12-15', description: 'Fictional goal for a campus event.' }).group;
+  recordPay(c, c.participants[0], 250000, 'seed3'); recordPay(c, c.participants[1], 100000, 'seed4');
+  recordPay(a, a.participants[1], C.parseMoney('200'), 'seed5'); recordPay(b, b.participants[1], 300000, 'seed6'); recordPay(c, c.participants[2], 50000, 'seed7');
+  const D = 864e5, T = st.transactions; T.forEach((t, i) => { const iso = new Date(Date.now() - (T.length - i) * D * 0.9 - i * 3.1e6).toISOString(); t.createdAt = iso; st.activity.forEach(x => { if (x.description.includes(t.id)) x.createdAt = iso; }); });
+  const s = st; try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} return s;
+}
+function recordPay(g, p, amt, key) {
+  const r = C.pay(st, g, p.id, amt, key); if (!r.ok) return r;
+  log(g, 'simulated_payment', 'Simulated payment ' + r.txn.id, amt, p.name);
+  if (g.status === 'Fully Funded') log(g, 'goal_completed', g.name + ' is fully funded', g.totalAmountPaisa);
+  return r;
+}
+
+/* ---------- DOM helpers (textContent-based, no innerHTML) ---------- */
+const h = (t, a, ...k) => { const e = document.createElement(t);
+  for (const [n, v] of Object.entries(a || {})) { if (n.startsWith('on')) e.addEventListener(n.slice(2), v); else if (v !== false && v != null) e.setAttribute(n, v); }
+  k.flat().forEach(c => c != null && e.append(c)); return e; };
+const badge = s => h('span', { class: 'badge ' + s }, s);
+const bar = (v, t) => { const pc = t ? Math.min(100, Math.round(v * 100 / t)) : 0; return h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': pc, 'aria-label': 'Collection progress' }, h('i', { style: 'width:' + pc + '%' })); };
+const field = (label, input) => { const id = 'f' + Math.random().toString(36).slice(2, 7); input.id = id; return [h('label', { for: id }, label), input]; };
+const errBox = list => h('div', { class: 'err', role: 'alert' }, h('ul', {}, list.map(x => h('li', {}, x))));
+const table = (heads, rows) => h('div', { class: 'tw' }, h('table', {}, h('thead', {}, h('tr', {}, heads.map(x => h('th', {}, x)))), h('tbody', {}, rows.map(r => h('tr', {}, r.map(c => h('td', {}, c)))))));
+const when = iso => new Date(iso).toLocaleString();
+const gname = id => (st.groups.find(g => g.id === id) || { name: '(deleted group)' }).name;
+function modal(title, body, actions) {
+  $('dlgTitle').textContent = title; const b = $('dlgBody'); b.replaceChildren(body, h('div', { class: 'row', style: 'margin-top:1rem' }, actions));
+  if (!$('dlg').open) $('dlg').showModal();
+}
+const closeModal = () => $('dlg').open && $('dlg').close();
+const cancelBtn = (l) => h('button', { class: 'btn alt', type: 'button', onclick: closeModal }, l || 'Cancel');
+function confirmBox(title, msg, label, fn, bad) {
+  modal(title, h('p', {}, msg), [h('button', { class: 'btn' + (bad ? ' bad' : ''), type: 'button', onclick: () => { closeModal(); fn(); } }, label), cancelBtn()]);
+}
+const go = hash => { if (location.hash === hash) render(); else location.hash = hash; };
+
+/* ---------- views ---------- */
+const active = () => st.groups.filter(g => g.status !== 'Fully Funded');
+const PAL = ['#075B46', '#D7B45A', '#2f80a8', '#b5533c', '#7a5aa6', '#3d9970', '#c77d1f', '#5b6c8f'];
+const hue = n => PAL[[...n].reduce((a, c) => a + c.charCodeAt(0), 0) % PAL.length];
+const avatar = n => h('span', { class: 'av', style: 'background:' + hue(n) }, n.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase());
+const NS = 'http://www.w3.org/2000/svg';
+const S = (t, a, ...k) => { const e = document.createElementNS(NS, t); for (const [n, v] of Object.entries(a || {})) e.setAttribute(n, v); k.flat().forEach(c => c != null && e.append(c)); return e; };
+const short = p => { const v = p / 100; return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(v >= 1e4 ? 0 : 1) + 'k' : String(Math.round(v)); };
+function donut(parts, center, sub) {
+  const R = 52, L = 2 * Math.PI * R, tot = parts.reduce((s, x) => s + x.v, 0); let off = 0;
+  const svg = S('svg', { viewBox: '0 0 140 140', class: 'donut', role: 'img', 'aria-label': center + ' ' + sub }, S('circle', { cx: 70, cy: 70, r: R, fill: 'none', stroke: 'var(--track)', 'stroke-width': 16 }));
+  if (tot) parts.forEach(x => { if (!x.v) return; const l = L * x.v / tot; svg.append(S('circle', { cx: 70, cy: 70, r: R, fill: 'none', stroke: x.c, 'stroke-width': 16, 'stroke-dasharray': l + ' ' + (L - l), 'stroke-dashoffset': -off, transform: 'rotate(-90 70 70)' })); off += l; });
+  svg.append(S('text', { x: 70, y: 70, 'text-anchor': 'middle', class: 'dn' }, center), S('text', { x: 70, y: 86, 'text-anchor': 'middle', class: 'ds' }, sub)); return svg;
+}
+function columns(data) {
+  const W = 320, H = 150, m = 22, top = 18, mx = Math.max(1, ...data.map(d => d.v)), bw = W / data.length;
+  const svg = S('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'cols', role: 'img', 'aria-label': 'Contributions per day' },
+    S('defs', {}, S('linearGradient', { id: 'gg', x1: 0, y1: 0, x2: 0, y2: 1 }, S('stop', { offset: 0, 'stop-color': '#D7B45A' }), S('stop', { offset: 1, 'stop-color': '#075B46' }))));
+  [0, .5, 1].forEach(f => { const y = H - m - (H - m - top) * f; svg.append(S('line', { x1: 0, x2: W, y1: y, y2: y, stroke: 'var(--line)' })); });
+  data.forEach((d, i) => { const bh = (H - m - top) * d.v / mx, w = bw * .62, x = i * bw + bw * .19;
+    svg.append(S('rect', { x, y: H - m - bh, width: w, height: d.v ? Math.max(bh, 3) : 0, rx: 6, fill: 'url(#gg)' }), S('text', { x: x + w / 2, y: H - 7, 'text-anchor': 'middle', class: 'ax' }, d.l));
+    if (d.v) svg.append(S('text', { x: x + w / 2, y: H - m - bh - 4, 'text-anchor': 'middle', class: 'ax b' }, short(d.v))); });
+  return svg;
+}
+function lastDays(list, n) {
+  const out = []; for (let i = n - 1; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); out.push({ k: d.toDateString(), l: d.toLocaleDateString(undefined, { weekday: 'short' }), v: 0 }); }
+  list.forEach(t => { const o = out.find(x => x.k === new Date(t.createdAt).toDateString()); if (o) o.v += t.amountPaisa; }); return out;
+}
+const legend = parts => h('div', { class: 'legend' }, parts.map(x => h('span', {}, h('i', { style: 'background:' + x.c }), x.l)));
+const sortTx = l => l.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+function txRow(t) {
+  const g = st.groups.find(x => x.id === t.groupId), p = g && g.participants.find(x => x.id === t.participantId), n = p ? p.name : 'Unknown';
+  return h('div', { class: 'tx' }, avatar(n), h('div', { class: 'tm' }, h('b', {}, n), h('span', { class: 'muted sm' }, (g ? g.name : '(deleted group)') + ' · User ID: ' + (p ? p.id : t.participantId) + ' · Transaction: ' + t.id)),
+    h('div', { class: 'ta' }, h('b', { class: 'pos' }, '+' + C.fmt(t.amountPaisa)), h('span', { class: 'muted sm' }, when(t.createdAt))));
+}
+function paidBreakdown(g) {
+  const tot = g.totalAmountPaisa, segs = g.participants.filter(p => p.paidAmountPaisa > 0);
+  return h('div', {}, h('h2', {}, 'Who has paid'), h('div', { class: 'stack' }, segs.map(p => h('i', { style: 'width:' + (p.paidAmountPaisa * 100 / tot) + '%;background:' + hue(p.name), title: p.name }))),
+    segs.length ? legend(segs.map(p => ({ c: hue(p.name), l: p.name + ' · ' + C.fmt(p.paidAmountPaisa) }))) : h('p', { class: 'muted sm' }, 'No payments yet.'));
+}
+function dashboard() {
+  const act = active(), all = st.groups.reduce((s, g) => s + g.totalAmountPaisa, 0), got = st.groups.reduce((s, g) => s + C.collected(g), 0), out = Math.max(0, all - got), pct = all ? Math.floor(got * 100 / all) : 0;
+  const stat = (l, v, n, i) => h('div', { class: 'card stc' }, h('span', { class: 'sic' }, i), h('div', { class: 'muted sm' }, l), h('div', { class: 'stat' }, v), h('div', { class: 'muted sm' }, n));
+  const txs = sortTx(st.transactions), parts = [{ v: got, c: '#075B46', l: 'Collected ' + C.fmt(got) }, { v: out, c: '#D7B45A', l: 'Outstanding ' + C.fmt(out) }];
+  return h('div', {},
+    h('div', { class: 'hero' }, h('div', {}, h('span', { class: 'pill' }, 'Demo mode · simulated payments'), h('div', { class: 'big' }, C.fmt(got)), h('div', { class: 'sub' }, 'collected across ' + st.groups.length + ' groups · ' + pct + '% of ' + C.fmt(all))),
+      h('div', { class: 'row' }, h('a', { class: 'btn gold', href: '#/create' }, 'Create a Group'), h('a', { class: 'btn ghost', href: '#/create/goal' }, 'Shared Goal'))),
+    h('div', { class: 'grid' }, stat('Groups', String(st.groups.length), act.length + ' active', '👥'), stat('Payments', String(txs.length), 'simulated transactions', '🧾'), stat('Collected', C.fmt(got), 'demo, no real money', '✅'), stat('Outstanding', C.fmt(out), 'still to collect', '⏳')),
+    h('div', { class: 'two' },
+      h('div', { class: 'card' }, h('h2', {}, 'Collection overview'), h('div', { class: 'chartrow' }, donut(parts, pct + '%', 'collected'), legend(parts))),
+      h('div', { class: 'card' }, h('h2', {}, 'Payments · last 7 days'), columns(lastDays(st.transactions, 7)))),
+    h('div', { class: 'card' }, h('h2', {}, 'Group progress'), st.groups.length ? st.groups.map(g => h('div', { class: 'gp' }, h('div', { class: 'row' }, h('a', { class: 'gl', href: '#/group/' + g.id }, g.name), badge(g.status), h('span', { class: 'muted sm', style: 'margin-left:auto' }, Math.floor(C.collected(g) * 100 / g.totalAmountPaisa) + '% · ' + C.fmt(C.collected(g)) + ' / ' + C.fmt(g.totalAmountPaisa))), bar(C.collected(g), g.totalAmountPaisa))) : h('p', { class: 'empty' }, 'No groups yet. Create one, or load sample data in About.')),
+    h('div', { class: 'card' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('h2', {}, 'Recent transactions'), h('a', { class: 'gl', href: '#/activity' }, 'View all')), txs.length ? txs.slice(0, 5).map(txRow) : h('p', { class: 'empty' }, 'No payments yet.')),
+    assistant(),
+    h('div', { class: 'card' }, h('details', {}, h('summary', {}, 'About this concept'), h('p', { class: 'muted' }, 'Splitting bills in chat means manual maths and no clear view of who has paid. GroupPay keeps one shared allocation that rebalances when someone pays more, and tracks every payment.'),
+      h('ol', { class: 'how' }, ['Create a group', 'Share the invite link or QR code; participants sign up to join', 'Allocate contributions', 'Simulate payments', 'Track progress and settlement'].map(x => h('li', {}, x))), h('p', { class: 'muted sm' }, 'Demo only: accounts and group data stay in each browser. No cross-device sync or real money transfer.'))));
+}
+function activityList(list) {
+  if (!list.length) return h('p', { class: 'empty' }, 'No activity found.');
+  return table(['Reference', 'Event', 'Group', 'Person', 'Amount', 'Time'], list.map(a => [a.id, a.eventType.replace(/_/g, ' '), gname(a.groupId), a.participantName || '—', a.amountPaisa ? C.fmt(a.amountPaisa) : '—', when(a.createdAt)]));
+}
+function createView(isGoal) {
+  const f = {
+    name: h('input', { maxlength: 60, placeholder: 'e.g. Weekend trip' }),
+    purpose: h('input', { maxlength: 50, placeholder: 'e.g. Travel, dinner, event' }),
+    total: h('input', { inputmode: 'decimal', placeholder: 'e.g. 15000.00' }),
+    desc: h('textarea', { rows: 2, maxlength: 500, placeholder: 'Optional details' }),
+    date: h('input', { type: 'date' })
+  };
+  if (isGoal) f.purpose.value = 'Donation';
+  const errs = h('div');
+  const note = h('div', { class:'ok' }, 'Participants do not need to be entered here. They will open your invite link or QR code, create an account, and be added automatically using their account name and participant ID.');
+  const form = h('div', { class: 'card' },
+    field('Group name', f.name), field('Purpose', f.purpose), field('Total amount (PKR)', f.total),
+    field('Description (optional)', f.desc), field('Target date (optional)', f.date),
+    h('div',{class:'card'},h('h2',{},'Contribution setup'),h('p',{class:'muted sm'},isGoal?'Members can contribute any amount toward the target.':'The total will be split equally among everyone who joins. The split updates when a new participant joins.'),h('p',{},'Organizer: ',h('b',{},currentUser.name),' · Account ID: ',h('code',{},currentUser.id))),
+    note, errs,
+    h('div', { class: 'row', style: 'margin-top:1rem' }, h('button', { class: 'btn', type: 'button', onclick: () => {
+      const r = addGroup({ name: f.name.value, purpose: f.purpose.value, total: f.total.value, names: [currentUser.name], values: [], method: 'equal', description: f.desc.value, targetDate: f.date.value, isGoal: !!isGoal });
+      if (r.errors.length) { errs.replaceChildren(errBox(r.errors)); return; }
+      r.group.participants[0].id=currentUser.id; r.group.participants[0].userId=currentUser.id; save(); go('#/group/' + r.group.id);
+    } }, 'Create group & get invite link'), h('a', { class: 'btn alt', href: '#/' }, 'Cancel')));
+  return h('div', {}, h('h1', {}, isGoal ? 'Create a Shared Goal' : 'Create Group'), form);
+}
+
+function groupsView() {
+  if (!st.groups.length) return h('div', {}, h('h1', {}, 'My Groups'), h('div', { class: 'card' }, h('p', {}, 'No groups yet.'), h('a', { class: 'btn', href: '#/create' }, 'Create your first group')));
+  return h('div', {}, h('h1', {}, 'My Groups'), st.groups.map(g => h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('a', { class: 'gl', href: '#/group/' + g.id }, g.name), badge(g.status), h('span', { class: 'muted' }, g.purpose + (g.isGoal ? ' · Goal' : ''))),
+    h('p', {}, C.fmt(C.collected(g)) + ' of ' + C.fmt(g.totalAmountPaisa)), bar(C.collected(g), g.totalAmountPaisa))));
+}
+function inviteText(g) {
+  return ['ABL GroupPay invitation (prototype)', 'Group: ' + g.name + ' [' + g.id + ']', 'Total: ' + C.fmt(g.totalAmountPaisa),
+    'Contribution method: ' + ({ equal: 'Equal split', custom: 'Custom contributions', percent: 'Percentage split', flexible: 'Flexible goal contributions' })[g.splitMethod],
+    'Participants: ' + g.participants.map(p => p.name).join(', '), 'Participants join with their own account using this invitation. Prototype only: each browser stores its own copy, so updates do not sync between devices.'].join('\n');
+}
+function copyText(t) {
+  const fb = () => { const ta = h('textarea', { style: 'position:fixed;opacity:0' }); ta.value = t; document.body.append(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return ok; };
+  return (navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(t).then(() => true, fb) : Promise.resolve(fb()));
+}
+function groupView(id) {
+  const g = st.groups.find(x => x.id === id); if (!g) return h('div', {}, h('h1', {}, 'Group not found'), h('a', { class: 'btn', href: '#/groups' }, 'Back to My Groups'));
+  const mePart = g.participants.find(p => p.userId === currentUser.id || p.id === currentUser.id);
+  if (!mePart && g.participants.some(p => p.userId)) return h('div', {}, h('h1', {}, g.name), h('div', { class: 'card' }, h('h2', {}, 'Join to see this group'), h('p', { class: 'muted' }, 'Only participants can see this group and its transaction history. Pay your share to join.'), h('a', { class: 'btn gold', href: '#/join/' + encodeURIComponent(safeB64Encode(groupInvitePayload(g))) }, 'Join and pay')));
+  const owedCard = (!g.isGoal && mePart && mePart.outstandingAmountPaisa > 0) ? h('div', { class: 'card done' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('div', {}, h('b', {}, 'You still need to pay ' + C.fmt(mePart.outstandingAmountPaisa)), h('div', { class: 'muted sm' }, 'Pay your share to complete joining this group.')), h('button', { class: 'btn gold', type: 'button', onclick: () => joinPayDialog(g, mePart) }, 'Pay ' + C.fmt(mePart.outstandingAmountPaisa)))) : null;
+  const col = C.collected(g), full = g.status === 'Fully Funded';
+  const prow = g.participants.map(p => [h('span', { class: 'who' }, avatar(p.name), h('span',{},p.name,h('span',{class:'muted sm',style:'display:block'},'ID: '+p.id))), g.isGoal ? '—' : C.fmt(p.assignedAmountPaisa), C.fmt(p.paidAmountPaisa), g.isGoal ? '—' : C.fmt(p.outstandingAmountPaisa), badge(p.status),
+    h('span', { class: 'row' }, h('button', { class: 'btn', type: 'button', disabled: C.maxPay(g, p) <= 0 || !(!p.userId || p.userId === currentUser.id || p.id === currentUser.id), title: 'You can only pay your own share', onclick: () => payDialog(g, p) }, 'Pay Contribution'),
+      g.isGoal ? null : h('button', { class: 'btn alt', type: 'button', disabled: full, onclick: () => adjustDialog(g, p) }, 'Adjust'))]);
+  const txns = st.transactions.filter(t => t.groupId === g.id).slice().reverse();
+  const shareUrl = inviteUrl(g);
+  const shareCard = h('div', { class: 'card' },
+    h('h2', {}, 'Share this group'),
+    (location.protocol === 'file:' && !CANONICAL_APP_URL) ? h('div', { class: 'err' }, 'This page is open from a file on your device, so this link will not work for other people. Open the app from its live web address (after deploying) and copy the link from there.') : null,
+    h('p', { class: 'muted sm' }, 'Participants open this invite, sign up or log in, and are added automatically with their account name and ID. Host this HTML at a public HTTPS URL before sharing; a file:/// link works only on your own device. Important: this single-file prototype stores data separately on each device; it does not synchronize participant joins or payments back to the organizer.'),
+    h('div', { class: 'row' },
+      h('input', { type: 'text', readonly: true, value: shareUrl, 'aria-label': 'Group share link', style: 'flex:1;min-width:220px' }),
+      h('button', { class: 'btn alt', type: 'button', onclick: async () => {
+        const ok = await copyText(shareUrl);
+        alert(ok ? 'Group link copied.' : 'Copy failed. Select and copy the link manually.');
+      } }, 'Copy link'),
+      h('a', { class: 'btn', target: '_blank', rel: 'noopener noreferrer',
+        href: 'https://wa.me/?text=' + encodeURIComponent('Join my ABL GroupPay group: ' + g.name + '\nOpen this invitation link: ' + shareUrl) }, 'Share on WhatsApp'),
+      h('a', { class:'btn alt', target:'_blank', rel:'noopener noreferrer', href:'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data='+encodeURIComponent(shareUrl) }, 'Open QR code')
+    )
+  );
+  return h('div', {}, h('h1', {}, g.name), owedCard, shareCard, h('div', { class: 'card' + (full ? ' done' : '') },
+    h('div', { class: 'row' }, badge(g.status), h('span', { class: 'muted' }, g.purpose + ' · Ref ' + g.id + (g.targetDate ? ' · Target date ' + g.targetDate : ''))),
+    g.description ? h('p', {}, g.description) : null,
+    h('p', {}, h('b', {}, C.fmt(col)), ' collected of ', h('b', {}, C.fmt(g.totalAmountPaisa)), ' · Remaining ' + C.fmt(g.totalAmountPaisa - col) + ' · ' + (g.totalAmountPaisa ? Math.floor(col * 100 / g.totalAmountPaisa) : 0) + '%'),
+    bar(col, g.totalAmountPaisa), full ? h('p', { class: 'ok' }, 'Fully funded: confirmed demo contributions equal the target.') : null,
+    paidBreakdown(g), h('p', { class: 'muted' }, 'Allocations are proposals; only simulated payments count as paid.'),
+    h('div', { class: 'row' }, h('button', { class: 'btn alt', type: 'button', onclick: () => inviteDialog(g) }, 'Invitation'), h('button', { class: 'btn alt', type: 'button', onclick: () => editDialog(g) }, 'Edit'),
+      h('button', { class: 'btn bad', type: 'button', onclick: () => confirmBox('Delete group?', 'Delete "' + g.name + '" and its transactions? This cannot be undone.', 'Delete group', () => { st.groups = st.groups.filter(x => x !== g); st.transactions = st.transactions.filter(t => t.groupId !== g.id); st.activity = st.activity.filter(a => a.groupId !== g.id); save(); go('#/groups'); }, true) }, 'Delete'))),
+    h('div', { class: 'card' }, h('h2', {}, 'Participants'), table(['Name', 'Assigned', 'Paid', 'Outstanding', 'Status', 'Actions'], prow)),
+    h('div', { class: 'card' }, h('h2', {}, 'Transaction history (who paid)'), txns.length ? h('div', {}, txns.map(txRow)) : h('p', { class: 'muted' }, 'No payments yet.')),
+    h('div', { class: 'card' }, h('h2', {}, 'Group activity'), activityList(st.activity.filter(a => a.groupId === g.id))));
+}
+function payDialog(g, p) {
+  const max = C.maxPay(g, p), key = C.uid('PAYKEY'); // key created once per dialog = duplicate protection
+  const amt = h('input', { inputmode: 'decimal', value: (max / 100).toFixed(2) }), err = h('div'), go1 = h('button', { class: 'btn', type: 'button' }, 'Simulate Payment');
+  go1.addEventListener('click', () => {
+    const a = C.parseMoney(amt.value); go1.disabled = true;
+    const r = Number.isNaN(a) ? { ok: false, error: 'Enter a valid amount (max 2 decimals).' } : recordPay(g, p, a, key);
+    if (!r.ok) { err.replaceChildren(errBox([r.error])); if (r.error !== 'Duplicate payment ignored.') go1.disabled = false; return; }
+    save(); render();
+    modal('Demo Transaction Successful', h('div', { class: 'ok' }, h('p', {}, p.name + ' paid ' + C.fmt(a) + ' (simulated).'), h('p', {}, 'Reference: ' + r.txn.id), h('p', {}, 'No real money was transferred.')), [h('button', { class: 'btn', type: 'button', onclick: closeModal }, 'Done')]);
+  });
+  modal('Review simulated payment', h('div', {}, h('p', {}, 'Payer: ', h('b', {}, p.name)), h('p', {}, (g.isGoal ? 'Remaining target: ' : 'Outstanding: ') + C.fmt(max)), field('Amount to pay (PKR)', amt), err, h('p', { class: 'muted' }, 'Simulation only. No real payment is made.')), [go1, cancelBtn()]);
+}
+function adjustDialog(g, p) {
+  const inp = h('input', { inputmode: 'decimal', value: (p.assignedAmountPaisa / 100).toFixed(2) }), out = h('div'), ok = h('button', { class: 'btn', type: 'button' }, 'Confirm allocation'); let plan = null;
+  function preview() {
+    const a = C.parseMoney(inp.value), r = Number.isNaN(a) ? { ok: false, error: 'Enter a valid amount (max 2 decimals).' } : C.redistribute(g, p.id, a);
+    plan = r.ok ? r.assigned : null; ok.disabled = !r.ok;
+    if (!r.ok) { out.replaceChildren(errBox([r.error])); return; }
+    const alloc = Object.values(r.assigned).reduce((s, v) => s + v, 0);
+    out.replaceChildren(table(['Name', 'Proposed', 'Already paid'], g.participants.map(q => [q.name, C.fmt(r.assigned[q.id]), C.fmt(q.paidAmountPaisa)])),
+      h('p', {}, 'Total ' + C.fmt(g.totalAmountPaisa) + ' · Allocated ' + C.fmt(alloc) + ' · Remaining ' + C.fmt(g.totalAmountPaisa - alloc)));
+  }
+  inp.addEventListener('input', preview);
+  ok.addEventListener('click', () => { if (!plan) return; C.apply(g, plan); log(g, 'allocation_changed', 'Allocation revised: ' + p.name + ' now proposed at ' + C.fmt(plan[p.id]), plan[p.id], p.name); save(); closeModal(); render(); });
+  modal('Adjust contribution: ' + p.name, h('div', {}, h('p', { class: 'muted' }, 'Unpaid balance is redistributed among other unpaid participants. Amounts already paid never change.'), field('Proposed amount (PKR)', inp), out), [ok, cancelBtn()]);
+  preview();
+}
+function inviteDialog(g) {
+  const ta = h('textarea', { rows: 9, readonly: '' }); ta.value = inviteText(g); const msg = h('p', { class: 'muted', role: 'status' });
+  modal('Invitation message', h('div', {}, ta, msg), [h('button', { class: 'btn', type: 'button', onclick: () => copyText(ta.value).then(k => { msg.textContent = k ? 'Copied.' : 'Copy failed. Select the text and copy it manually.'; }) }, 'Copy Invitation'), cancelBtn('Close')]);
+}
+function editDialog(g) {
+  const n = h('input', { value: g.name }), d = h('textarea', { rows: 3 }), e = h('div'); d.value = g.description;
+  modal('Edit group', h('div', {}, field('Group name', n), field('Description', d), e), [h('button', { class: 'btn', type: 'button', onclick: () => {
+    if (!n.value.trim()) { e.replaceChildren(errBox(['Group name is required.'])); return; }
+    g.name = n.value.trim(); g.description = d.value.trim(); log(g, 'group_updated', 'Group details updated'); save(); closeModal(); render(); } }, 'Save changes'), cancelBtn()]);
+}
+function activityView() {
+  let tab = 'pay';
+  const gs = h('select', {}, h('option', { value: '' }, 'All groups'), st.groups.map(g => h('option', { value: g.id }, g.name))),
+    rs = h('select', {}, [['all', 'All time'], ['1', 'Last 24 hours'], ['7', 'Last 7 days'], ['30', 'Last 30 days']].map(([v, l]) => h('option', { value: v }, l))),
+    q = h('input', { placeholder: 'Name or reference', type: 'search' }), box = h('div'), tabs = h('div', { class: 'tabs', role: 'tablist' });
+  const dayLabel = iso => { const d = new Date(iso), t = new Date(); if (d.toDateString() === t.toDateString()) return 'Today'; t.setDate(t.getDate() - 1); return d.toDateString() === t.toDateString() ? 'Yesterday' : d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }); };
+  const draw = () => {
+    const cut = rs.value === 'all' ? 0 : Date.now() - Number(rs.value) * 864e5, inRange = x => (!gs.value || x.groupId === gs.value) && new Date(x.createdAt).getTime() >= cut;
+    tabs.replaceChildren(...[['pay', 'Payments'], ['act', 'All activity']].map(([k, l]) => h('button', { type: 'button', class: tab === k ? 'on' : '', onclick: () => { tab = k; draw(); } }, l)));
+    if (tab === 'act') { box.replaceChildren(h('div', { class: 'card' }, activityList(st.activity.filter(inRange)))); return; }
+    const needle = q.value.trim().toLowerCase(), list = sortTx(st.transactions.filter(t => inRange(t) && (!needle || t.id.toLowerCase().includes(needle) || (((st.groups.find(g => g.id === t.groupId) || { participants: [] }).participants.find(p => p.id === t.participantId) || { name: '' }).name.toLowerCase().includes(needle)))));
+    const sum = list.reduce((s, t) => s + t.amountPaisa, 0), big = list.reduce((m, t) => Math.max(m, t.amountPaisa), 0);
+    const byG = st.groups.map(g => ({ v: list.filter(t => t.groupId === g.id).reduce((s, t) => s + t.amountPaisa, 0), c: hue(g.name), l: g.name.replace(' (Sample)', '') })).filter(x => x.v);
+    const stat = (l, v) => h('div', { class: 'card' }, h('div', { class: 'muted sm' }, l), h('div', { class: 'stat' }, v));
+    let last = '', rows = [];
+    list.forEach(t => { const d = dayLabel(t.createdAt); if (d !== last) { rows.push(h('div', { class: 'dayh' }, d)); last = d; } rows.push(txRow(t)); });
+    box.replaceChildren(h('div', { class: 'grid' }, stat('Transactions', String(list.length)), stat('Total paid', C.fmt(sum)), stat('Average', list.length ? C.fmt(Math.round(sum / list.length)) : '—'), stat('Largest', C.fmt(big))),
+      h('div', { class: 'two' }, h('div', { class: 'card' }, h('h2', {}, 'Daily volume'), columns(lastDays(list, 7))), h('div', { class: 'card' }, h('h2', {}, 'By group'), h('div', { class: 'chartrow' }, donut(byG, list.length ? short(sum) : '0', 'PKR paid'), legend(byG)))),
+      h('div', { class: 'card' }, h('h2', {}, 'Transaction history'), rows.length ? rows : h('p', { class: 'empty' }, 'No transactions match these filters.')));
+  };
+  [gs, rs, q].forEach(e => e.addEventListener(e === q ? 'input' : 'change', draw)); draw();
+  return h('div', {}, h('h1', {}, 'History'), tabs, h('div', { class: 'card' }, h('div', { class: 'grid' }, h('div', {}, field('Group', gs)), h('div', {}, field('Period', rs)), h('div', {}, field('Search', q)))), box);
+}
+let deferred = null; window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+function installCard() {
+  const b = h('button', { class: 'btn', type: 'button', onclick: () => deferred && deferred.prompt() }, 'Install app');
+  return h('div', { class: 'card' }, h('h2', {}, 'Use it like an app'), h('p', { class: 'muted' }, 'Android (Chrome): menu ⋮ → Add to Home screen / Install app. Laptop (Chrome/Edge): install icon in the address bar. iPhone (Safari): Share → Add to Home Screen. Free, no store needed.'), deferred ? b : null);
+}
+function settingsView() {
+  return h('div', {}, h('h1', {}, 'Settings / About'), h('div', { class: 'card' }, h('h2', {}, 'About ABL GroupPay'),
+    h('p', {}, 'A proposed group-payment mini app for splitting bills, flexible contributions and shared goals. It is a hackathon demonstration, not an official Allied Bank product, and is not connected to any bank system.'),
+    h('p', {}, 'All payments are simulated. Sign-up, login, groups and transaction history are stored only in the current browser (localStorage); they are not synchronized between devices. For participants and organizers to see the same live transaction history, this file must be connected to a shared backend/authentication service. Goals are demonstrations, not a verified charity collection service.')),
+    installCard(), h('div', { class: 'card' }, h('h2', {}, 'Demo data'), h('div', { class: 'row' },
+      h('button', { class: 'btn alt', type: 'button', onclick: () => confirmBox('Load sample data?', 'This replaces all current demo data with fictional sample groups.', 'Load sample data', () => { sample(); save(); go('#/'); }) }, 'Load Sample Data'),
+      h('button', { class: 'btn bad', type: 'button', onclick: () => confirmBox('Reset demo data?', 'This permanently deletes all groups, transactions and activity from this browser.', 'Reset demo data', () => { st = { groups: [], transactions: [], activity: [] }; save(); go('#/'); }, true) }, 'Reset Demo Data'))));
+}
+/* ---------- rule-based assistant (uses the same C.* logic; no AI API) ---------- */
+function assistant() {
+  const inp = h('input', { placeholder: 'e.g. Split 1000 among 3 people', 'aria-label': 'Ask the assistant' }), out = h('p', { role: 'status', class: 'muted' }, 'A simple local rule-based helper, not an AI chatbot and not connected to any bank. It only reads data saved in this browser.');
+  const ask = () => {
+    const q = inp.value.toLowerCase(), g = st.groups.slice().reverse().find(x => x.status !== 'Fully Funded') || st.groups[st.groups.length - 1];
+    let m = q.match(/split\s+([\d,.]+)\s+among\s+(\d+)/), a = '';
+    if (m) { const t = C.parseMoney(m[1]), n = parseInt(m[2], 10); a = t > 0 && n >= 2 ? C.spread(t, n).map((v, i) => 'Person ' + (i + 1) + ': ' + C.fmt(v)).join('; ') : 'Please give a positive amount and at least 2 people.'; }
+    else if (/active groups/.test(q)) a = active().length ? active().map(x => x.name).join(', ') : 'You have no active groups.';
+    else if (/(left|remaining)/.test(q)) a = g ? g.name + ': ' + C.fmt(g.totalAmountPaisa - C.collected(g)) + ' left.' : 'No groups saved yet.';
+    else if (/collected/.test(q)) a = g ? g.name + ': ' + C.fmt(C.collected(g)) + ' collected of ' + C.fmt(g.totalAmountPaisa) + '.' : 'No groups saved yet.';
+    else if (/each person|should .*pay/.test(q)) a = g ? g.participants.map(p => p.name + ': ' + C.fmt(g.isGoal ? 0 : p.outstandingAmountPaisa)).join('; ') + ' (outstanding, ' + g.name + ')' : 'No groups saved yet.';
+    else a = 'I can answer: "Split 1000 among 3 people", "How much is left in my group?", "Show my active groups", "How much has been collected?", "How much should each person pay?"';
+    out.textContent = a;
+  };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+  return h('div', { class: 'card' }, h('h2', {}, 'Smart Assistant (optional)'), inp, h('div', { class: 'row', style: 'margin-top:.5rem' }, h('button', { class: 'btn alt', type: 'button', onclick: ask }, 'Ask')), out);
+}
+function authView(mode) {
+  const signup = mode === 'signup';
+  const name = h('input', { autocomplete: 'name', maxlength: 60, placeholder: 'Choose a username', required: true });
+  const email = h('input', { type: 'email', autocomplete: 'email', placeholder: 'you@example.com', required: true });
+  const pass = h('input', { type: 'password', autocomplete: signup ? 'new-password' : 'current-password', minlength: 8, placeholder: signup ? 'Create a password (8+ characters)' : 'Enter your password', required: true });
+  const confirm = h('input', { type: 'password', autocomplete: 'new-password', minlength: 8, placeholder: 'Re-enter your password', required: true });
+  const err = h('div', { role: 'alert', 'aria-live': 'polite' });
+  async function submit() {
+    err.replaceChildren();
+    const n = name.value.trim(), em = email.value.trim().toLowerCase(), pw = pass.value;
+    if (signup && n.length < 2) { err.replaceChildren(errBox(['Please enter a username (at least 2 characters).'])); return; }
+    if (!em || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { err.replaceChildren(errBox(['Enter a valid email address.'])); return; }
+    if (pw.length < 8) { err.replaceChildren(errBox(['Password must be at least 8 characters.'])); return; }
+    if (signup && pw !== confirm.value) { err.replaceChildren(errBox(['The passwords do not match. Please re-enter them.'])); confirm.focus(); return; }
+    try {
+      if (signup) {
+        if (users.some(u => u.email === em)) { err.replaceChildren(errBox(['An account with this email already exists on this device. Please log in instead.'])); return; }
+        const u = { id: C.uid('USR'), name: n, email: em, passwordHash: await passwordHash(pw), createdAt: new Date().toISOString() };
+        users.push(u); localStorage.setItem(USERS_KEY, JSON.stringify(users)); setSession(u);
+      } else {
+        const u = users.find(x => x.email === em), hash = await passwordHash(pw);
+        if (!u || u.passwordHash !== hash) { err.replaceChildren(errBox(['Email or password is incorrect on this device.'])); return; }
+        setSession(u);
+      }
+      if (pendingInviteToken) { const tok = pendingInviteToken; go('#/join/' + encodeURIComponent(tok)); return; }
+      go('#/');
+    } catch (e) { err.replaceChildren(errBox([e.message || 'Unable to save the account on this device.'])); }
+  }
+  const fields = [];
+  if (signup) fields.push(...field('Username (shown in group history)', name));
+  fields.push(...field('Email address', email), ...field('Password', pass));
+  if (signup) fields.push(...field('Confirm password', confirm));
+  const title = signup ? 'Create your account' : 'Welcome back';
+  const subtitle = signup
+    ? 'Set up your participant profile to join and contribute to groups.'
+    : 'Log in to continue to your groups and transaction history.';
+  const primary = h('button', { class: 'btn auth-primary', type: 'button', onclick: submit }, signup ? 'Create account' : 'Log in');
+  const authTarget = signup ? '#/login' : '#/signup';
+  const switchLink = h('a', { href: authTarget, class: 'auth-link', onclick: e => { e.preventDefault(); go(authTarget); } }, signup ? 'Log in instead' : 'Create an account');
+  const switcher = h('div', { class: 'auth-switch' },
+    h('span', { class: 'muted sm' }, signup ? 'Already registered?' : 'New to ABL GroupPay?'), switchLink);
+  return h('div', { class: 'auth-wrap' },
+    h('div', { class: 'auth-card' },
+      h('div', { class: 'auth-head ' + (signup ? 'is-signup' : 'is-login') },
+        h('div', { class: 'auth-symbol', 'aria-hidden': 'true' }, signup ? '✦' : '↗'),
+        h('span', { class: 'auth-eyebrow' }, signup ? 'NEW PARTICIPANT' : 'MEMBER ACCESS'),
+        h('h1', {}, title), h('p', {}, subtitle)),
+      h('form', { class: 'auth-form', onsubmit: e => { e.preventDefault(); submit(); } },
+        ...fields, err,
+        h('button', { class: 'btn auth-primary', type: 'submit' }, signup ? 'Create account' : 'Log in'),
+        switcher,
+        h('p', { class: 'muted sm auth-note' }, 'Demo limitation: accounts are stored only in this browser. They do not synchronize across devices until a shared authentication service and database are connected.'))));
+}
+function joinPayDialog(g, p) {
+  if (g.isGoal) return payDialog(g, p);
+  const amt = C.maxPay(g, p), key = C.uid('PAYKEY'), err = h('div'), btn = h('button', { class: 'btn gold', type: 'button' }, 'Pay ' + C.fmt(amt) + ' and join');
+  btn.addEventListener('click', () => {
+    btn.disabled = true;
+    const r = recordPay(g, p, amt, key);
+    if (!r.ok) { err.replaceChildren(errBox([r.error])); if (r.error !== 'Duplicate payment ignored.') btn.disabled = false; return; }
+    save(); render();
+    modal('Payment successful', h('div', { class: 'ok' }, h('p', {}, p.name + ' (User ID ' + p.id + ') paid ' + C.fmt(amt) + ' (simulated).'), h('p', {}, 'Reference: ' + r.txn.id), h('p', {}, 'No real money was transferred.')),
+      [h('button', { class: 'btn', type: 'button', onclick: () => { closeModal(); go('#/group/' + encodeURIComponent(g.id)); } }, 'View group history')]);
+  });
+  modal('Pay to join ' + g.name, h('div', {}, h('p', {}, 'Payer: ', h('b', {}, p.name), ' · User ID ', h('code', {}, p.id)), h('p', {}, 'Amount you must pay: ', h('b', {}, C.fmt(amt))), err, h('p', { class: 'muted sm' }, 'Simulation only. No real payment is made.')), [btn, cancelBtn('Pay later')]);
+}
+function joinView(token){
+  if(!currentUser) return authView('signup');
+  const result=joinGroupFromInvite(token);
+  pendingInviteToken='';
+  if(result.error) return h('div',{},h('h1',{},'Unable to join group'),h('div',{class:'err'},result.error),h('a',{class:'btn',href:'#/'},'Go home'));
+  const g=result.group, p=g.participants.find(x=>x.userId===currentUser.id || x.id===currentUser.id);
+  const owes=g.isGoal ? p.paidAmountPaisa===0 : p.outstandingAmountPaisa>0;
+  return h('div',{},h('h1',{},'Join '+g.name),h('div',{class:'card'},
+    h('div',{class:'ok'},'Welcome, '+currentUser.name+'. You have been added with User ID ',h('code',{},p.id),'.'),
+    h('p',{},'Group total: ',h('b',{},C.fmt(g.totalAmountPaisa))),
+    g.isGoal ? h('p',{},'This is a shared goal: contribute any amount toward it.') : h('p',{},'Your share to pay: ',h('b',{},C.fmt(p.outstandingAmountPaisa))),
+    h('div',{class:'row'},
+      owes ? h('button',{class:'btn gold',type:'button',onclick:()=>joinPayDialog(g,p)},g.isGoal?'Contribute and join':'Pay '+C.fmt(p.outstandingAmountPaisa)+' and join') : h('span',{class:'ok'},'You have paid your share.'),
+      h('a',{class:'btn alt',href:'#/group/'+encodeURIComponent(g.id)},owes?'Skip for now':'Open group')),
+    h('p',{class:'muted sm'},'Participants who have paid can see the group transaction history. Prototype note: data is stored in each browser until a shared backend is connected.')));
+}
+/* ---------- router ---------- */
+function render() {
+  // Parse hash routes consistently for file:// and hosted deployments.
+  // Support both the local hash router and the hosted site's #relay=<payload> share format.
+  const hashValue = location.hash || '#/';
+  const relayMatch = hashValue.match(/^#relay=([^&]+)$/);
+  const routeParts = relayMatch ? ['relay', relayMatch[1]] : hashValue.replace(/^#\/?/, '').split('/');
+  const route = routeParts[0] || '';
+  const rawArg = routeParts[1];
+  let arg = rawArg;
+  try { if (arg) arg = decodeURIComponent(arg); } catch (e) { arg = ''; }
+  if((route==='join' || route==='relay') && arg) pendingInviteToken=arg;
+  let view;
+  const shellEl=document.querySelector('.shell'), navEl=$('nav');
+  if (route==='logout') { setSession(null); go('#/login'); return; }
+  if (!currentUser) {
+    // Login/signup is required. An invitation link sends the visitor to sign up first, then straight to the group.
+    shellEl.classList.add('solo'); navEl.style.display='none';
+    $('app').replaceChildren(authView(route==='login' ? 'login' : 'signup'));
+    return;
+  }
+  shellEl.classList.remove('solo'); navEl.style.display='';
+  view = (route==='join' || route==='relay') ? joinView(arg) : route === 'create' ? createView(arg === 'goal') : route === 'groups' ? groupsView() : route === 'group' ? groupView(arg) : route === 'activity' ? activityView() : route === 'settings' ? settingsView() : dashboard();
+  const accountBar=h('div',{class:'card',style:'display:flex;gap:.7rem;align-items:center;justify-content:space-between;flex-wrap:wrap'},h('span',{},'Signed in as ',h('b',{},currentUser.name),' · User ID ',h('code',{},currentUser.id)),h('a',{class:'btn alt',href:'#/logout'},'Log out'));
+  $('app').replaceChildren(...[storageOK ? null : h('div', { class: 'err', role: 'alert' }, 'Browser storage is unavailable, so changes will be lost when this tab closes.'), accountBar, view].filter(Boolean));
+  document.querySelectorAll('#nav a').forEach(a => {
+    const href = a.getAttribute('href');
+    const activeRoute = route === 'group' ? 'groups' : (route || '');
+    a.classList.toggle('on', href === '#/' + activeRoute);
+  });
+}
+window.addEventListener('hashchange', () => { closeModal(); render(); window.scrollTo(0, 0); });
+save(); render();
+})();
+
+</script>
+</body>
+</html>
